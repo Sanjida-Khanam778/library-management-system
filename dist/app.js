@@ -9,6 +9,17 @@ const borrow_route_1 = __importDefault(require("./app/routes/borrow.route"));
 const error_middleware_1 = __importDefault(require("./app/middlewares/error.middleware"));
 const app = (0, express_1.default)();
 app.use(express_1.default.json());
+// Root route
+app.get('/', (req, res) => {
+    res.json({
+        message: 'Library Management API',
+        version: '1.0.0',
+        endpoints: {
+            books: '/api/books',
+            borrow: '/api/borrow'
+        }
+    });
+});
 app.use('/api/books', book_route_1.default);
 app.use('/api/borrow', borrow_route_1.default);
 app.use(error_middleware_1.default);

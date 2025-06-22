@@ -1,9 +1,7 @@
 import mongoose from 'mongoose';
-import app from './app';
+import app from '../src/app';
 import 'dotenv/config';
-import { Request, Response, NextFunction, RequestHandler } from 'express';
 
-const port = process.env.PORT || 5000;
 const uri = process.env.MONGODB_URI || 'mongodb://127.0.0.1:27017/library-management';
 
 // MongoDB connection options for serverless
@@ -12,7 +10,7 @@ const mongooseOptions = {
   serverSelectionTimeoutMS: 5000,
   socketTimeoutMS: 45000,
   bufferMaxEntries: 0,
-  bufferCommands: true, // Changed to true for serverless
+  bufferCommands: true,
   useNewUrlParser: true,
   useUnifiedTopology: true,
 };
@@ -23,7 +21,6 @@ let isConnected = false;
 // Connect to MongoDB
 const connectDB = async () => {
   if (isConnected) {
-    console.log('Using existing database connection');
     return;
   }
 
@@ -37,17 +34,6 @@ const connectDB = async () => {
   }
 };
 
-// Handle MongoDB connection events
-mongoose.connection.on('error', (err) => {
-  console.error('MongoDB connection error:', err);
-  isConnected = false;
-});
-
-mongoose.connection.on('disconnected', () => {
-  console.log('MongoDB disconnected');
-  isConnected = false;
-});
-
 // Middleware to ensure DB connection before handling requests
 app.use(async (req, res, next) => {
   if (!isConnected) {
@@ -56,18 +42,5 @@ app.use(async (req, res, next) => {
   next();
 });
 
-// Start server only if not in serverless environment
-if (process.env.NODE_ENV !== 'production' || process.env.VERCEL !== '1') {
-  connectDB().then(() => {
-    app.listen(port, () => {
-      console.log(`Server running on port ${port}`);
-    });
-  });
-}
-
-// Export for Vercel
-export default app;
-
-export const getBookById: RequestHandler = async (req: Request, res: Response, next: NextFunction) => {
-  // ...
-};
+// Export for Vercel serverless
+export default app; 
